@@ -4,15 +4,23 @@
 clear all;
 close all;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Constantes
 mu_atot = ;
 mu_afoto = ;
 mu_pfoto = ;
 mu_ptot = ;
 
+
 tot_fotones = 1000; %numero de fotones 
 E = espectro_e(tot_fotones);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dimensiones de las capas
+xmaxa = ; %Espesor 1m
+ymaxa = ;
+zmaxa = ; 
+xmaxp = ; %Espesor 1mm
+ymaxp = ; 
+zmaxp = ; 
 
 fotones = [0]; %inicializa el vector con todas las energias de fotones
 
@@ -28,7 +36,7 @@ end
 
 
 fotones_abs = 0;
-mc2 = ;%incluir ls multiplicacion de masa de reposo del electron con c^2
+mc2 = 0.511;% Esto es en MEV, falta revisar si la salida de espectro es en mev o ev
 
 %falta hacer que revise la distancia recorrida para que si sigue en aire o
 %si entro al plomo
