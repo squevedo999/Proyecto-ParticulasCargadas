@@ -5,8 +5,6 @@ clear all;
 close all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Constantes
-mu_pfoto = 100;
-mu_ptot = 50;
 
 Fa = "fotoelectrico aire";
 Ca = "compton aire";
@@ -48,7 +46,6 @@ mc2 = 0.511;% Esto es en MEV, falta revisar si la salida de espectro es en mev o
 for i = 1:numel(fotones)
     i
         e(i) = fotones(1,i);
-        e(i)
         x(i) = 0;
         y(i) = 0;
         z(i) = 0;
@@ -61,13 +58,12 @@ for i = 1:numel(fotones)
                 
                 if x(i)< xmaxa ||  y(i)< ymaxa  || z(i)< zmaxa %si no se sale de las dimensiones del aire
                     
-                    mu_afoto = (2e-06) * (e(i)^(-3.141));
-                    mu_atot = (0.0002) * (e(i)^(-2.337))
+                    mu_aire = coef_aire(e(i));
                     
-                    d = -log(1-rand())/mu_atot %distancia que recorre el electron ESTAN DEMASIADO GRANDES
+                    d = -log(1-rand())/mu_aire(1,2) %distancia que recorre el electron ESTAN DEMASIADO GRANDES
                     x(i) = x(i) + d; %distancia que ocurre la interacción
                     
-                    if rand()<mu_afoto/mu_atot %Pregunta si es fotoelectrico
+                    if rand()<mu_aire(1,1)/mu_aire(1,2) %Pregunta si es fotoelectrico
                         Fa
                         absorbido = 1;
                         fotones_abs_aire = fotones_abs_aire+1;
@@ -91,10 +87,13 @@ for i = 1:numel(fotones)
                     end
                 
                 elseif (xmaxa < x(i) && x(i) < xmaxp)  ||  (ymaxa < y(i) && x(i) < ymaxp)  || (zmaxa < z(i) && x(i) < zmaxp) %si se sale del aire pero esta en plomo
-                    d = -log(1-rand())/mu_ptot; %distancia que recorre el electron
-                    x(i) = x(i) + d; %distancia que ocurre la interacción  
                     
                     mu_plomo = coef_plomo(e(i));
+                    
+                    d = -log(1-rand())/mu_plomo(1,2); %distancia que recorre el electron
+                    
+                    x(i) = x(i) + d; %distancia que ocurre la interacción  
+                    
                     
                     if rand()<mu_plomo(1,1)/mu_plomo(1,2) %Pregunta si es fotoelectrico
 
@@ -144,6 +143,9 @@ for i = 1:numel(fotones)
             end 
         end
 end
+
+fotones_abs_Pb
+fotones_abs_aire
 
 fotones_antes_blindaje = tot_fotones - fotones_abs_aire %número de fotones que llegan al blindaje
 fotones_despues_blindaje = tot_fotones - (fotones_abs_aire+fotones_abs_Pb) %número de fotones que llegan al blindaje
