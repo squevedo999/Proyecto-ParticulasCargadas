@@ -1,8 +1,10 @@
 
 %Transporte de electrones 
 
-clear all;
-close all;
+%el problema parece ser que el la distancia desde el último punto del aire
+%a el plomo, es muy grande y se pasa del 1mm de Pb. Hay que ver como pedos
+%hacemos para reparar eso. Puede ser que si esa dist es más grande que el
+%mm de plomo, se asuma que el fotón empieza en el plomo. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Constantes
 
@@ -10,18 +12,20 @@ Fa = "fotoelectrico aire";
 Ca = "compton aire";
 Fp = "fotoelectrico plomo";
 Cp = "compton plomo";
+EP = "en plomo";
+P = "pasado"
 
 tot_fotones = 1000; %numero de fotones 
 E = espectro_e(tot_fotones);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dimensiones de las capas
 xmaxa = 100; %Espesor 1m
-ymaxa = 100;
-zmaxa = 100; 
+ymaxa = 2;
+zmaxa = 2; 
 xmaxp = xmaxa + 0.1 ; %Espesor 1mm
-ymaxp = ymaxa + 0.1; 
-zmaxp = zmaxa + 0.1; 
-area_Pb = 1*1; %Area del blindaje en cm^2
+ymaxp = ymaxa ; 
+zmaxp = zmaxa ; 
+area_Pb = 2*2; %Area del blindaje en cm^2
 
 fotones = [0]; %inicializa el vector con todas las energias de fotones
 
@@ -40,9 +44,6 @@ fotones_abs_Pb = 0;
 fotones_abs = 0;
 mc2 = 0.511;% Esto es en MEV, falta revisar si la salida de espectro es en mev o ev
 
-%falta incluir el cambio en el coeficiente de atenuacion despues de que la
-%energia cambia por Compton
-
 for i = 1:numel(fotones)
     i
         e(i) = fotones(1,i);
@@ -56,14 +57,14 @@ for i = 1:numel(fotones)
             
             if e(i)>1 %revisa que el foton tenga una energia minima
                 
-                if x(i)< xmaxa ||  y(i)< ymaxa  || z(i)< zmaxa %si no se sale de las dimensiones del aire
+                if x(i)< xmaxa &&  y(i)< ymaxa  && z(i)< zmaxa %si no se sale de las dimensiones del aire
                     
                     mu_aire = coef_aire(e(i));
                     
-                    d = -log(1-rand())/mu_aire(1,2) %distancia que recorre el electron ESTAN DEMASIADO GRANDES
+                    d = -log(1-rand())/(mu_aire(1,2) + mu_aire(1,1)); %distancia que recorre el electron ESTAN DEMASIADO GRANDES
                     x(i) = x(i) + d; %distancia que ocurre la interacción
-                    
-                    if rand()<mu_aire(1,1)/mu_aire(1,2) %Pregunta si es fotoelectrico
+                 
+                    if rand()< mu_aire(1,1)/(mu_aire(1,2) + mu_aire(1,1))%Pregunta si es fotoelectrico
                         Fa
                         absorbido = 1;
                         fotones_abs_aire = fotones_abs_aire+1;
@@ -83,27 +84,37 @@ for i = 1:numel(fotones)
                         y(i) = y(i) + dy;
                         z(i) = z(i) + dz;
                     
-                        e(i) = (e(i)/(1+(e(i)/(mc2))*(1-cos(theta)))); %no estoy seguro que ese sea el angulo correcto
+                        e(i) = (e(i)/(1+(e(i)/(mc2))*(1-cos(phi)))); %no estoy seguro que ese sea el angulo correcto
                     end
-                
-                elseif (xmaxa < x(i) && x(i) < xmaxp)  ||  (ymaxa < y(i) && x(i) < ymaxp)  || (zmaxa < z(i) && x(i) < zmaxp) %si se sale del aire pero esta en plomo
+                    
+                    if x(i)>xmaxp
+                        x(i)=xmaxa; 
+                        P
+                    end
+%                 coord = "coordenadas"
+%                 x(i)
+%                 y(i)
+%                 z(i)
+                elseif (xmaxa <= x(i) && x(i) <= xmaxp)  &&  (ymaxa <= y(i) && y(i) <= ymaxp)  && (zmaxa <= z(i) && z(i) <= zmaxp) %si se sale del aire pero esta en plomo
+                    
+                    EP
                     
                     mu_plomo = coef_plomo(e(i));
                     
-                    d = -log(1-rand())/mu_plomo(1,2); %distancia que recorre el electron
+                    d = -log(1-rand())/(mu_plomo(1,1)+mu_plomo(1,2)) %distancia que recorre el electron
                     
                     x(i) = x(i) + d; %distancia que ocurre la interacción  
                     
                     
-                    if rand()<mu_plomo(1,1)/mu_plomo(1,2) %Pregunta si es fotoelectrico
+                    if rand()<mu_plomo(1,1)/(mu_plomo(1,1)+mu_plomo(1,2)) %Pregunta si es fotoelectrico
 
-                        Fp
+                        %Fp
                         absorbido = 1;
                         fotones_abs_Pb = fotones_abs_Pb+1;
                         break
 
                     else %Si no es Compton
-                        Cp
+                        %Cp
                         theta = asin(-1+2*rand());
                         phi = 2*pi*rand();
 
@@ -128,14 +139,15 @@ for i = 1:numel(fotones)
             
             
         else %si la energía es menor a 0.001 MeV entonces lo tomamos como absorbido
-                if x(i)< xmaxa ||  y(i)< ymaxa  || z(i)< zmaxa %se verifica si se absorbió en aire
+                if x(i)< xmaxa &&  y(i)< ymaxa  && z(i)< zmaxa %se verifica si se absorbió en aire
                     absorbido = 1;
                     fotones_abs_aire = fotones_abs_aire+1;
                     break
                 end
-                if x(i)< xmaxa ||  y(i)< ymaxa  || z(i)< zmaxa %se verifica si se absorbió en agua
+                if x(i)< xmaxp &&  y(i)< ymaxp  && z(i)< zmaxp %se verifica si se absorbió en plomo
                     absorbido = 1;
                     fotones_abs_Pb = fotones_abs_Pb+1;
+                    EP %aca es donde esta agarrando en el plomo
                     break
                 end
                 
