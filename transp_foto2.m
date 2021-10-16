@@ -1,4 +1,4 @@
-%Transporte de electrones 
+%Transporte de fotones 
 
 %el problema parece ser que el la distancia desde el último punto del aire
 %a el plomo, es muy grande y se pasa del 1mm de Pb. Hay que ver como pedos
