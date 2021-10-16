@@ -14,13 +14,13 @@ P = "pasado";
 E = espectro_e(tot_fotones);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dimensiones de las capas
-xmaxa = 5; %Espesor 1m
-ymaxa = 100;
-zmaxa = 20; 
-xmaxp = xmaxa ; %Espesor 1mm
-ymaxp = ymaxa + 0.1; 
-zmaxp = zmaxa ; 
-area_Pb = xmaxa*zmaxa; %Area del blindaje en cm^2
+xmaxa = 5; %ancho aire cm
+ymaxa = 100; %distancia de la fuente al blindaje cm
+zmaxa = 20; %largo aire cm
+xmaxp = xmaxa ; %ancho blindaje cm
+ymaxp = ymaxa + 0.1; %espesor blindaje cm
+zmaxp = zmaxa ; %largo blindaje
+area_Pb = xmaxp*zmaxp; %Area del blindaje cm^2
 
 fotones = [0]; %inicializa el vector con todas las energias de fotones
 
@@ -37,7 +37,7 @@ end
 fotones_abs_aire = 0;
 fotones_abs_Pb = 0;
 fotones_abs = 0;
-mc2 = 511;% Esto es en MEV, falta revisar si la salida de espectro es en mev o ev
+mc2 = 511; % masa en reposo del electrón keV
 
 for i = 1:numel(fotones)
     i;
@@ -50,17 +50,17 @@ for i = 1:numel(fotones)
         
         while absorbido==0
             
-            if e>1 %revisa que el foton tenga una energia minima
+            if e>1 %revisa que el foton tenga una energia minima de 1 keV
                 
-                if x< xmaxa &&  y< ymaxa  && z< zmaxa %si no se sale de las dimensiones del aire
+                if x< xmaxa &&  y< ymaxa  && z< zmaxa %verifica si está en aire
                     
                     mu_aire = coef_aire(e);
                     
                     theta = asin(-1+2*rand());
                     phi = 2*pi*rand();
-                    d = abs(log(1-rand())/mu_aire(1,2)); %distancia que recorre el electron ESTAN DEMASIADO GRANDES
+                    d = abs(log(1-rand())/mu_aire(1,2)); %distancia que recorre el fotón
                     
-                    cd1 = sin(theta)*cos(phi);
+                    cd1 = sin(theta)*cos(phi); %cosenos directores
                     cd2 = sin(theta)*sin(phi);
                     cd3 = cos(phi);
                     
@@ -68,20 +68,20 @@ for i = 1:numel(fotones)
                     dy = d*cd2;
                     dz = d*cd3;
                     
-                    x = x + dx;
+                    x = x + dx; %nueva posición
                     y = y + dy;
                     z = z + dz;
                     
                     numrand1 = rand();
                     prob_foto = mu_aire(1,1)/mu_aire(1,2);
                     
-                    if numrand1< prob_foto %Pregunta si es fotoelectrico
+                    if numrand1< prob_foto % determina si ocurre fotoeléctrico
                         Fa;
                         absorbido = 1;
                         fotones_abs_aire = fotones_abs_aire+1;
                         
 
-                    else %Si no, es Compton
+                    else % ocurre fotoeléctrico
                         Ca;
                         e_r = e/511;
                         U = e_r /(1+ 0.5626 * e_r);
@@ -105,14 +105,14 @@ for i = 1:numel(fotones)
                             cosdirC = A*cd3;
                         end
                         
-                        x0 = x;
+                        x0 = x; 
                         y0 = y;
                         z0 = z;
                         
                         d = abs(log(1-rand())/mu_aire(1,2));
                         
                         x = x0 + d * cosdirA;
-                        y = y0 + d * cosdirB;
+                        y = y0 + d * cosdirB; %actualiza las posición
                         z = z0 + d * cosdirC;
                         
                     end
@@ -130,7 +130,7 @@ for i = 1:numel(fotones)
                     
                     theta = asin(-1+2*rand());
                     phi = 2*pi*rand();
-                    d = abs(log(1-rand())/mu_plomo(1,2)); %distancia que recorre el electron ESTAN DEMASIADO GRANDES
+                    d = abs(log(1-rand())/mu_plomo(1,2)); %distancia que recorre el fotón
                     
                     cd1 = sin(theta)*cos(phi);
                     cd2 = sin(theta)*sin(phi);
@@ -184,7 +184,7 @@ for i = 1:numel(fotones)
                         d = -log(1-rand())/mu_aire(1,2);
                         
                         x = x0 + d * cosdirA;
-                        y = y0 + d * cosdirB;
+                        y = y0 + d * cosdirB; %actualiza las posición
                         z = z0 + d * cosdirC;
                 
                     end
@@ -196,7 +196,7 @@ for i = 1:numel(fotones)
                end
             
             
-        else %si la energía es menor a 0.001 MeV entonces lo tomamos como absorbido
+        else %si la energía es menor a 1 keV entonces lo tomamos como absorbido
                 if x< xmaxa &&  y< ymaxa  && z< zmaxa %se verifica si se absorbió en aire
                     absorbido = 1;
                     fotones_abs_aire = fotones_abs_aire+1;
