@@ -111,6 +111,8 @@ for i = 1:numel(fotones)
                         
                         d = abs(log(1-rand())/mu_aire(1,2));
                         
+                        e = e_d * 511;
+                        
                         x = x0 + d * cosdirA;
                         y = y0 + d * cosdirB; %actualiza las posición
                         z = z0 + d * cosdirC;
@@ -182,6 +184,8 @@ for i = 1:numel(fotones)
                         z0 = z;
                         
                         d = -log(1-rand())/mu_aire(1,2);
+                        
+                        e = e_d * 511;
                         
                         x = x0 + d * cosdirA;
                         y = y0 + d * cosdirB; %actualiza las posición
